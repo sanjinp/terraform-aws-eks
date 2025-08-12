@@ -535,6 +535,10 @@ locals {
 
   iam_role_name          = coalesce(var.iam_role_name, "${var.name}-eks-node-group")
   iam_role_policy_prefix = "arn:${local.partition}:iam::aws:policy"
+  principal_service_ids = {
+    "aws"     = "ec2.amazonaws.com"
+    "aws-cn"  = "ec2.amazonaws.com.cn"
+  }
 
   ipv4_cni_policy = { for k, v in {
     AmazonEKS_CNI_Policy = "${local.iam_role_policy_prefix}/AmazonEKS_CNI_Policy"
@@ -553,7 +557,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = ["${local.principal_service_ids[data.aws_partition.current.partition]}"]
     }
   }
 }
